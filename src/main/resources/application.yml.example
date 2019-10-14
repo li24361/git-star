@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+github:
+  endpoint: https://api.github.com/graphql
+  token: **
+
+justauth:
+  enabled: true
+  type:
+    GITHUB:
+      client-id: 10**********6
+      client-secret: 1f7d08**********5b7**********29e
+      redirect-uri: http://oauth.xkcoding.com/demo/oauth/github/callback
+  cache:
+    type: default

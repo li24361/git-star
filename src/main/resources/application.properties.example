@@ -1,3 +1,0 @@
-server.port=8081
-github.token=your token
-github.endpoint=https://api.github.com/graphql

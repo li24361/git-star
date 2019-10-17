@@ -38,7 +38,7 @@ public class RestAuthController {
     @GetMapping("/login/{type}")
     public void login(@PathVariable String type, HttpServletResponse response) throws IOException {
         AuthRequest authRequest = factory.get(type);
-        response.sendRedirect(authRequest.authorize(AuthStateUtils.createState()));
+        response.sendRedirect(authRequest.authorize(AuthStateUtils.createState())+"&scope=user:email%20read:org");
     }
 
     @RequestMapping("/{type}/callback")

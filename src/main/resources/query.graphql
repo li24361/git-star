@@ -1,1 +1,61 @@
-{"query":"{\n  user(login: \"{login}\") {\n    createdAt\n    contributionsCollection(from: \"2018-10-01T00:00:00Z\", to: \"2019-10-01T00:00:00Z\") {\n      totalCommitContributions\n      totalRepositoryContributions\n      totalRepositoriesWithContributedCommits\n      contributionYears\n      issueContributions{\n        totalCount\n      }\n    }\n    followers {\n      totalCount\n    }\n    repositories(first: 100, orderBy: {field: STARGAZERS, direction: DESC}) {\n      totalDiskUsage\n      totalCount\n      nodes {\n        name\n        issues(first:100){\n          totalCount\n          nodes{\n            createdAt\n            closedAt\n            closed\n          }\n        }\n        primaryLanguage {\n          name\n        }\n        createdAt\n        stargazers {\n          totalCount\n        }\n      }\n    }\n  }\n}"
+{
+  rateLimit{
+    cost
+    nodeCount
+    remaining
+    resetAt
+  }
+  user(login: "{login}") {
+    avatarUrl
+    followers{
+      totalCount
+    }
+    company
+    organizations(first:10){
+      totalCount
+      nodes{
+        name
+        avatarUrl
+      }
+    }
+    repositories(first: 100, orderBy: {field: STARGAZERS, direction: DESC}) {
+      totalCount
+      nodes {
+        nameWithOwner
+        forkCount
+        primaryLanguage {
+          name
+        }
+        stargazers {
+          totalCount
+        }
+      }
+    }
+    repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
+      totalCount
+      nodes {
+        nameWithOwner
+        forkCount
+        primaryLanguage {
+          name
+        }
+        stargazers{
+          totalCount
+        }
+      }
+    }
+    topRepositories(first:1,orderBy:{field:STARGAZERS,direction:DESC}){
+      totalCount
+      nodes{
+        nameWithOwner
+        forkCount
+        primaryLanguage {
+          name
+        }
+        stargazers{
+          totalCount
+        }
+      }
+    }
+  }
+}

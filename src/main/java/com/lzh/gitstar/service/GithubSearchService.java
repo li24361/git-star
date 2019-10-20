@@ -1,18 +1,19 @@
-package com.lzh.gitstar.github;
+package com.lzh.gitstar.service;
 
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONUtil;
-import com.lzh.gitstar.domain.Index;
+import com.lzh.gitstar.domain.dto.Index;
 import com.lzh.gitstar.domain.graphql.JsonRootBean;
-import com.lzh.gitstar.domain.graphql.Repositories;
 import com.lzh.gitstar.index.GIndexCalculator;
 import com.lzh.gitstar.index.HIndexCalculator;
-import com.lzh.gitstar.index.IndexCalculator;
 import lombok.extern.slf4j.Slf4j;
+import me.zhyd.oauth.model.AuthUser;
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,6 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.LongBinaryOperator;
 
 /**
  * @Author lizhihao
@@ -31,10 +28,10 @@ import java.util.function.LongBinaryOperator;
  */
 @Component
 @Slf4j
-public class GraphqlSearcher {
+public class GithubSearchService {
 
-    @Value("${github.token}")
-    private String token;
+//    @Value("${github.token}")
+//    private String token;
 
     @Value("${github.endpoint}")
     private String endpoint;
@@ -50,22 +47,21 @@ public class GraphqlSearcher {
         String graphql = StrUtil.format(resource, MapUtil.of("login", login)).replace("\"", "\\\"").replace(System.lineSeparator(), "\\n");
         String body = "{\"query\":\"" + graphql + "\"}";
         log.info("request:{}", body);
+        AuthUser principal = (AuthUser) SecurityUtils.getSubject().getPrincipal();
         String result = HttpRequest.post(endpoint)
-                .header("Authorization", "bearer " + token)
+                .header("Authorization", "bearer " + principal.getToken().getAccessToken())
                 .body(body)
                 .execute()
                 .body();
         log.info("result:{}", result);
-
         return result;
     }
 
     public Index handleIndex(String login) {
-
         String result = search(login);
         JSONArray errors = JSONUtil.parseObj(result).getJSONArray("errors");
         if (errors!=null) {
-            throw new RuntimeException(errors.get(0).toString());
+            throw new JSONException(errors.get(0).toString());
         }
         JsonRootBean jsonRootBean = JSONUtil.toBean(result, JsonRootBean.class);
         Index index = new Index();
@@ -90,6 +86,7 @@ public class GraphqlSearcher {
         long contributeStar = jsonRootBean.getData().getUser().getRepositoriesContributedTo().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
         long ownStar = jsonRootBean.getData().getUser().getRepositories().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
         index.setAllStar(ownStar+contributeStar);
+        index.setResult(jsonRootBean.getData());
         try {
             executorService.shutdown();
             executorService.awaitTermination(10, TimeUnit.MINUTES);

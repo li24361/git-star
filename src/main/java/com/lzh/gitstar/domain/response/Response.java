@@ -13,19 +13,20 @@ public class Response<T> {
 
     private Integer code;
 
-    private T t;
+    private T data;
 
     private String errorMsg;
 
     public static Response ok(){
         Response response = new Response();
         response.setCode(0);
+        response.setData("success");
         return response;
     }
 
     public static Response ok(Object t) {
         Response ok = Response.ok();
-        ok.setT(t);
+        ok.setData(t);
         return ok;
     }
 

@@ -31,7 +31,7 @@
         }
       }
     }
-    repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {
+    repositoriesContributedTo(first: 100, contributionTypes: [COMMIT, PULL_REQUEST, REPOSITORY]) {
       totalCount
       nodes {
         nameWithOwner

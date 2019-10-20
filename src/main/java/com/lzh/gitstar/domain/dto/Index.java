@@ -1,4 +1,4 @@
-package com.lzh.gitstar.domain;
+package com.lzh.gitstar.domain.dto;
 
 import lombok.Data;
 
@@ -28,4 +28,6 @@ public class Index {
     private String contributeRepositoryHIndex;
 
     private String contributeRepositoryGIndex;
+
+    private Object result;
 }

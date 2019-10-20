@@ -24,8 +24,6 @@ public class IndexService {
     public void saveIndex(Index index) {
         UserIndex userIndex = new UserIndex();
         BeanUtils.copyProperties(index, userIndex);
-        AuthUser authUser = (AuthUser) SecurityUtils.getSubject().getPrincipal();
-        userIndex.setId(Long.valueOf(authUser.getUuid()));
         userIndexRepository.save(userIndex);
     }
 

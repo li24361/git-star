@@ -19,6 +19,8 @@ public class User {
     private Repositories repositories;
     private Repositories repositoriesContributedTo;
     private Repositories topRepositories;
+    private Repositories pinnedItems;
+    private ContributionsCollection contributionsCollection;
 
 
 }

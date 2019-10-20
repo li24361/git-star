@@ -1,0 +1,60 @@
+<!doctype html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<html xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="git star 检测github指数">
+    <title>git star</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+    <link rel="stylesheet" th:href="@{~/css/layouts/marketing.css}">
+  </head>
+<body>
+
+<div class="header">
+    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">
+        <a class="pure-menu-heading" href="">Git Star</a>
+
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item pure-menu-selected"><a href="#" class="pure-menu-link">主页</a></li>
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link">查询</a></li>
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link">排名</a></li>
+            <li class="pure-menu-item" shiro:authenticated=""><span shiro:principal=""></span>,<a href="http://localhost:8080/logout" class="pure-menu-link">登出</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="splash-container">
+    <div class="splash">
+        <h1 class="splash-head">查询你的Github指数</h1>
+        <p class="splash-subhead">
+            登录即可授权.
+        </p>
+        <p shiro:notAuthenticated="">
+            <a href="http://localhost:8080/login" class="pure-button pure-button-primary" id="app">Sign in with
+                GitHub</a>
+        </p>
+        <div id="query" shiro:authenticated="">
+            <form class="pure-form" action="#" th:action="@{/bid/add}" th:object="${bidInfo}" method="post">
+                用户名：<input type="text"> <a class="pure-button pure-button-primary" href="#">A Primary Button</a>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <div class="footer l-box is-center">
+        View the source of this layout to learn more. Made with love by the YUI Team.
+    </div>
+
+</div>
+
+<script>
+
+</script>
+</body>
+</html>

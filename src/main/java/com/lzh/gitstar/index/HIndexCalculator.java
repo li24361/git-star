@@ -14,7 +14,7 @@ public class HIndexCalculator implements IndexCalculator{
         //计算H指数
         int result = 0;
         for (int i = 0; i < repositories.getNodes().size(); i++) {
-            if (result >= repositories.getNodes().get(i).getStargazers().getTotalCount()) {
+            if (result >= repositories.getNodes().get(i).getStarIndex()) {
                 return result;
             }
             result++;

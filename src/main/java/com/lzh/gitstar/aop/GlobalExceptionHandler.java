@@ -15,14 +15,14 @@ import javax.servlet.http.HttpServletRequest;
  * @author : lizhihao
  * @since : 2019/10/19, 星期六
  **/
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = Exception.class)
-    @ResponseBody
+    @ExceptionHandler(value = UnauthenticatedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public Response<String> jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
-        return Response.fail(e.getMessage());
+    public String jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
+        return "index";
     }
 
     @ExceptionHandler(value = JSONException.class)
@@ -31,6 +31,17 @@ public class GlobalExceptionHandler {
         return Response.fail(e.getMessage());
     }
 
+    @ExceptionHandler(value = NullPointerException.class)
+    @ResponseBody
+    public Response<String> jsonErrorHandler(HttpServletRequest req, NullPointerException e) throws Exception {
+        return Response.fail("npe"+e.getStackTrace()[0]);
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    @ResponseBody
+    public Response<String> jsonErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+        return Response.fail(e.getMessage());
+    }
 
 
 }

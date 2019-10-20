@@ -13,10 +13,7 @@ import javax.persistence.*;
 @Data
 public class UserIndex {
 
-
     @Id
-    private Long id;
-
     @Column(columnDefinition = "varchar(100) COMMENT '用户名'")
     private String login;
 
@@ -35,15 +32,15 @@ public class UserIndex {
     @Column(columnDefinition = "varchar(100)")
     private String topRepository;
 
-    @Column(columnDefinition = "varchar(100)")
-    private String repositoryHIndex;
+    @Column(columnDefinition = "int(10)")
+    private Integer repositoryHIndex;
 
-    @Column(columnDefinition = "varchar(100)")
-    private String repositoryGIndex;
+//    @Column(columnDefinition = "int(10)")
+//    private Integer repositoryGIndex;
 
-    @Column(columnDefinition = "varchar(100)")
-    private String contributeRepositoryHIndex;
+    @Column(columnDefinition = "int(10)")
+    private Integer contributeRepositoryHIndex;
 
-    @Column(columnDefinition = "varchar(100)")
-    private String contributeRepositoryGIndex;
+//    @Column(columnDefinition = "int(10)")
+//    private Integer contributeRepositoryGIndex;
 }

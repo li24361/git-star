@@ -3,6 +3,7 @@
   */
 package com.lzh.gitstar.domain.graphql;
 
+import com.lzh.gitstar.common.FormulaConst;
 import lombok.Data;
 
 /**
@@ -18,5 +19,11 @@ public class Nodes {
     private int forkCount;
     private PrimaryLanguage primaryLanguage;
     private Stargazers stargazers;
+    private Watchers watchers;
+
+
+    public Float getStarIndex() {
+        return stargazers.getTotalCount() * FormulaConst.starRadio + watchers.getTotalCount() * FormulaConst.watchRadio + forkCount * FormulaConst.forkRadio;
+    }
 
 }

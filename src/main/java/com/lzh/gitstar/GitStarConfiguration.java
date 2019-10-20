@@ -1,5 +1,6 @@
 package com.lzh.gitstar;
 
+import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import cn.hutool.core.map.MapUtil;
 import com.lzh.gitstar.domain.dto.Index;
 import com.lzh.gitstar.shiro.OAuth2Realm;
@@ -55,5 +56,10 @@ public class GitStarConfiguration {
          */
         defaultAdvisorAutoProxyCreator.setUsePrefix(true);
         return defaultAdvisorAutoProxyCreator;
+    }
+
+    @Bean
+    public ShiroDialect shiroDialect() {
+        return new ShiroDialect();
     }
 }

@@ -8,6 +8,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONUtil;
 import com.lzh.gitstar.domain.dto.Index;
+import com.lzh.gitstar.domain.graphql.ContributionsCollection;
 import com.lzh.gitstar.domain.graphql.JsonRootBean;
 import com.lzh.gitstar.index.GIndexCalculator;
 import com.lzh.gitstar.index.HIndexCalculator;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -68,25 +70,29 @@ public class GithubSearchService {
         index.setLogin(login);
         index.setFollower(Long.valueOf(jsonRootBean.getData().getUser().getFollowers().getTotalCount()));
         index.setAvatarUrl(jsonRootBean.getData().getUser().getAvatarUrl());
-        index.setPrimaryLanguage(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getPrimaryLanguage().getName());
+        index.setPrimaryLanguage(Optional.ofNullable(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getPrimaryLanguage()).map(l-> l.getName()).orElse("Markdown"));
         index.setTopRepository(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getNameWithOwner());
         ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(()->{
             index.setRepositoryHIndex(hIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositories()) + "");
         });
-        executorService.submit(()->{
-            index.setRepositoryGIndex(gIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositories()) + "");
-        });
+//        executorService.submit(()->{
+//            index.setRepositoryGIndex(gIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositories()) + "");
+//        });
         executorService.submit(()->{
             index.setContributeRepositoryHIndex(hIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositoriesContributedTo()) + "");
         });
-        executorService.submit(()->{
-            index.setContributeRepositoryGIndex(gIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositoriesContributedTo()) + "");
-        });
+//        executorService.submit(()->{
+//            index.setContributeRepositoryGIndex(gIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositoriesContributedTo()) + "");
+//        });
         long contributeStar = jsonRootBean.getData().getUser().getRepositoriesContributedTo().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
         long ownStar = jsonRootBean.getData().getUser().getRepositories().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
-        index.setAllStar(ownStar+contributeStar);
-        index.setResult(jsonRootBean.getData());
+        index.setOwnStar(ownStar);
+        index.setContributeStar(contributeStar);
+        Optional<ContributionsCollection> collectionOptional = Optional.ofNullable(jsonRootBean.getData().getUser().getContributionsCollection());
+        index.setContributes(collectionOptional.map(c->c.getAllContributions()).orElse(0));
+        index.setContributeYears(collectionOptional.map(c->c.getContributionYears()).map(y->y.size()).orElse(0));
+//        index.setResult(jsonRootBean.getData());
         try {
             executorService.shutdown();
             executorService.awaitTermination(10, TimeUnit.MINUTES);

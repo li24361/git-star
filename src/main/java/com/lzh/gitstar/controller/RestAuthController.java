@@ -15,6 +15,7 @@ import me.zhyd.oauth.utils.AuthStateUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,28 +28,27 @@ import java.util.concurrent.Executors;
  * @since : 2019/10/14, 星期一
  **/
 @Slf4j
-@RestController
+@Controller
 public class RestAuthController {
 
     @Autowired
     private UserLoginService userLoginService;
 
 
-     @GetMapping("/login")
+    @GetMapping("/login")
     public void login( HttpServletResponse response) throws IOException {
         response.sendRedirect(userLoginService.githubLogin());
     }
 
     @GetMapping("/logout")
     @RequiresAuthentication
-    @ResponseBody
-    public Response logout(){
+    public String logout(){
         SecurityUtils.getSubject().logout();
-        return Response.ok("logout success!");
+        return "index";
     }
 
     @RequestMapping("/oauth/github/callback")
-    public Response login(AuthCallback callback) {
+    public String login(AuthCallback callback) {
 
         GithubToken githubToken = new GithubToken();
         githubToken.setAuthCallback(callback);
@@ -58,6 +58,6 @@ public class RestAuthController {
             log.error("login error", e);
             throw new JSONException(e.getMessage());
         }
-        return Response.ok("login success!");
+        return "index";
     }
 }

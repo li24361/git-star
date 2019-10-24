@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
  * @since : 2019/10/14, 星期一
  **/
 @Slf4j
-@Controller
+@RestController
 public class RestAuthController {
 
     @Autowired
@@ -42,13 +42,14 @@ public class RestAuthController {
 
     @GetMapping("/logout")
     @RequiresAuthentication
-    public String logout(){
+    @ResponseBody
+    public Response logout(){
         SecurityUtils.getSubject().logout();
-        return "index";
+        return Response.ok();
     }
 
     @RequestMapping("/oauth/github/callback")
-    public String login(AuthCallback callback) {
+    public Response login(AuthCallback callback) {
 
         GithubToken githubToken = new GithubToken();
         githubToken.setAuthCallback(callback);
@@ -58,6 +59,6 @@ public class RestAuthController {
             log.error("login error", e);
             throw new JSONException(e.getMessage());
         }
-        return "index";
+        return Response.ok("success");
     }
 }

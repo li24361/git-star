@@ -21,10 +21,8 @@ public class IndexService {
     @Autowired
     private UserIndexRepository userIndexRepository;
 
-    public void saveIndex(Index index) {
-        UserIndex userIndex = new UserIndex();
-        BeanUtils.copyProperties(index, userIndex);
-        userIndexRepository.save(userIndex);
+    public void saveIndex(UserIndex index) {
+        userIndexRepository.save(index);
     }
 
     public List<UserIndex> listAll() {

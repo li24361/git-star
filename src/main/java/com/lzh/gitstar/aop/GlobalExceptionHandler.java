@@ -21,8 +21,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = UnauthenticatedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public String jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
-        return "index";
+    @ResponseBody
+    public Response<String> jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
+        return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = JSONException.class)

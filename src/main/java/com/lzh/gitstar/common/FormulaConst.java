@@ -11,4 +11,10 @@ public class FormulaConst {
     public static final Float watchRadio = 0.1f;
 
     public static final Float forkRadio = 0.3f;
+
+    public static final Integer followerAdjust = 4;
+
+    public static final Integer maxFollower = 100000;
+
+    public static final Integer maxComtribute = 100000;
 }

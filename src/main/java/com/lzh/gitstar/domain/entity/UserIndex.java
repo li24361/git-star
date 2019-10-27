@@ -3,6 +3,7 @@ package com.lzh.gitstar.domain.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @author : lizhihao

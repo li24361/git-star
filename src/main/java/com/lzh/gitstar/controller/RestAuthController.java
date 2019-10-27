@@ -2,6 +2,8 @@ package com.lzh.gitstar.controller;
 
 import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.lzh.gitstar.domain.response.Response;
 import com.lzh.gitstar.service.UserLoginService;
 import com.lzh.gitstar.shiro.GithubToken;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.config.AuthDefaultSource;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
+import me.zhyd.oauth.model.AuthUser;
 import me.zhyd.oauth.request.AuthRequest;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.apache.shiro.SecurityUtils;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -36,8 +40,9 @@ public class RestAuthController {
 
 
     @GetMapping("/login")
-    public void login( HttpServletResponse response) throws IOException {
-        response.sendRedirect(userLoginService.githubLogin());
+    public String login( HttpServletResponse response) throws IOException {
+//        response.sendRedirect(userLoginService.githubLogin());
+        return userLoginService.githubLogin();
     }
 
     @GetMapping("/logout")
@@ -49,8 +54,7 @@ public class RestAuthController {
     }
 
     @RequestMapping("/oauth/github/callback")
-    public Response login(AuthCallback callback) {
-
+    public void login(AuthCallback callback, HttpServletResponse response) throws IOException {
         GithubToken githubToken = new GithubToken();
         githubToken.setAuthCallback(callback);
         try {
@@ -59,6 +63,11 @@ public class RestAuthController {
             log.error("login error", e);
             throw new JSONException(e.getMessage());
         }
-        return Response.ok("success");
+//        return Response.ok("success");
+        AuthUser principal = (AuthUser) SecurityUtils.getSubject().getPrincipal();
+        JSONObject res = new JSONObject();
+        res.put("username", principal.getUsername());
+        res.put("token", principal.getToken().getAccessToken());
+        response.sendRedirect("http://localhost:8010/user?result="+res.toJSONString());
     }
 }

@@ -8,6 +8,7 @@
   user(login: "{login}") {
     avatarUrl
     company
+    createdAt
     followers{
       totalCount
     }

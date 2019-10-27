@@ -3,6 +3,7 @@ package com.lzh.gitstar.domain.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,6 +16,12 @@ public class Index {
     private String login;
 
     private String avatarUrl;
+
+    private String createdAt;
+
+    private Integer ownStars;
+
+    private Integer followers;
 
     private String primaryLanguage;
 

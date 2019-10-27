@@ -16,5 +16,5 @@ public class FormulaConst {
 
     public static final Integer maxFollower = 100000;
 
-    public static final Integer maxComtribute = 100000;
+    public static final Integer maxComtribute = 3000;
 }

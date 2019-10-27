@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ResponseBody
     public Response<String> jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
-        return Response.fail(e.getMessage());
+        return Response.fail("not login!");
     }
 
     @ExceptionHandler(value = JSONException.class)
@@ -34,12 +34,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = NullPointerException.class)
     @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Response<String> jsonErrorHandler(HttpServletRequest req, NullPointerException e) throws Exception {
         return Response.fail("npe"+e.getStackTrace()[0]);
     }
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Response<String> jsonErrorHandler(HttpServletRequest req, Exception e) throws Exception {
         return Response.fail(e.getMessage());
     }

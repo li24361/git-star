@@ -1,11 +1,13 @@
 package com.lzh.gitstar.service;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONException;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.lzh.gitstar.common.FormulaConst;
 import com.lzh.gitstar.domain.dto.Index;
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,7 +54,6 @@ public class GithubSearchService {
         String resource = new ClassPathResource("query.graphql").readUtf8Str();
         String graphql = StrUtil.format(resource, MapUtil.of("login", login)).replace("\"", "\\\"").replace(System.lineSeparator(), "\\n");
         String body = "{\"query\":\"" + graphql + "\"}";
-        log.info("request:{}", body);
         AuthUser principal = (AuthUser) SecurityUtils.getSubject().getPrincipal();
         String result = HttpRequest.post(endpoint)
                 .header("Authorization", "bearer " + principal.getToken().getAccessToken())
@@ -62,15 +64,10 @@ public class GithubSearchService {
         return result;
     }
 
-    private UserIndex searchUserInfo(String login) {
-        String result = search(login);
-        JSONArray errors = JSONUtil.parseObj(result).getJSONArray("errors");
-        if (errors!=null) {
-            throw new JSONException(errors.get(0).toString());
-        }
-        JsonRootBean jsonRootBean = JSONUtil.toBean(result, JsonRootBean.class);
+
+
+    private UserIndex searchUserInfo(JsonRootBean jsonRootBean) {
         UserIndex index = new UserIndex();
-        index.setLogin(login);
         index.setFollower(jsonRootBean.getData().getUser().getFollowers().getTotalCount());
         index.setAvatarUrl(jsonRootBean.getData().getUser().getAvatarUrl());
         index.setPrimaryLanguage(Optional.ofNullable(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getPrimaryLanguage()).map(l-> l.getName()).orElse("Markdown"));
@@ -100,10 +97,29 @@ public class GithubSearchService {
         return index;
     }
 
+    private JsonRootBean searchByGithub(String login) {
+        String result = search(login);
+        JSONObject jsonObject = JSONUtil.parseObj(result);
+        if (jsonObject.getJSONArray("errors")!=null) {
+            throw new JSONException(jsonObject.getJSONArray("errors").get(0).toString());
+        }
+        if (jsonObject.get("data") == null) {
+            throw new JSONException("query error!");
+        }
+        return JSONUtil.toBean(result, JsonRootBean.class);
+    }
+
+    /**
+     * 计算
+     * @param userIndex
+     * @return
+     */
     private Index calculateUserIndex(UserIndex userIndex) {
         Index index = new Index();
         index.setLogin(userIndex.getLogin());
         index.setAvatarUrl(userIndex.getAvatarUrl());
+        index.setOwnStars(userIndex.getOwnStar());
+        index.setFollowers(userIndex.getFollower());
         index.setPrimaryLanguage(userIndex.getPrimaryLanguage());
         index.setTopRepository(userIndex.getTopRepository());
         index.setContributeYears(userIndex.getContributeYears());
@@ -116,8 +132,11 @@ public class GithubSearchService {
     }
 
     public Index handleUserIndex(String login) {
-        UserIndex userIndex = this.searchUserInfo(login);
+        JsonRootBean jsonRootBean = searchByGithub(login);
+        UserIndex userIndex = searchUserInfo(jsonRootBean);
+        userIndex.setLogin(login);
         Index index = calculateUserIndex(userIndex);
+        index.setCreatedAt(DateUtil.format(jsonRootBean.getData().getUser().getCreatedAt(), "yyyy-MM-dd"));
         Executors.newSingleThreadExecutor().submit(()->{
             userIndex.setAllScore(index.getScore());
             IndexService.saveIndex(userIndex);

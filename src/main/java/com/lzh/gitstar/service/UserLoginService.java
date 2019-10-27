@@ -35,13 +35,12 @@ public class UserLoginService {
     }
 
     public String githubLogin(){
-        return authRequest.authorize(AuthStateUtils.createState()) + "&scope=user:email%20read:org";
+        return authRequest.authorize(AuthStateUtils.createState()) + "&scope=user:email%20read:org" ;
     }
 
     public AuthUser githubCallback(AuthCallback callback){
         AuthRequest authRequest = factory.get(github);
         AuthResponse response = authRequest.login(callback);
-        log.info("【response】= {}", JSONUtil.toJsonStr(response));
         AuthUser authUser = (AuthUser)response.getData();
         return authUser;
     }

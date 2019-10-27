@@ -3,8 +3,6 @@ package com.lzh.gitstar.domain.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author : lizhihao
@@ -29,25 +27,24 @@ public class Index {
 
     private Integer contributeYears;
 
-    private BigDecimal allStarsPercent;
+    private BigDecimal allStarsScore;
 
-    private BigDecimal followerPercent;
+    private BigDecimal followerScore;
 
-    private BigDecimal repositoryHIndexPercent;
+    private BigDecimal repositoryHIndexScore;
 
-    private BigDecimal contributeRepositoryHIndexPercent;
+    private BigDecimal contributeRepositoryHIndexScore;
 
-    private BigDecimal contributesPercent;
+    private BigDecimal contributesScore;
 
     private Integer score;
 
     public Integer getScore() {
-        BigDecimal allScore = allStarsPercent
-                .add(followerPercent)
-                .add(repositoryHIndexPercent)
-                .add(contributeRepositoryHIndexPercent)
-                .add(contributesPercent)
-                .multiply(BigDecimal.valueOf(100));
+        BigDecimal allScore = allStarsScore
+                .add(followerScore)
+                .add(repositoryHIndexScore)
+                .add(contributeRepositoryHIndexScore)
+                .add(contributesScore);
         return allScore.intValue() ;
     }
 

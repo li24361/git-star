@@ -2,7 +2,6 @@ package com.lzh.gitstar.aop;
 
 import cn.hutool.json.JSONException;
 import com.lzh.gitstar.domain.response.Response;
-import org.apache.shiro.authz.UnauthenticatedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,30 +18,23 @@ import javax.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = UnauthenticatedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ResponseBody
-    public Response<String> jsonErrorHandler(HttpServletRequest req, UnauthenticatedException e) throws Exception {
-        return Response.fail("not login!");
-    }
 
     @ExceptionHandler(value = JSONException.class)
     @ResponseBody
-    public Response<String> jsonErrorHandler(HttpServletRequest req, JSONException e) throws Exception {
+    public Response<String> jsonErrorHandler(HttpServletRequest req, JSONException e) {
         return Response.fail(e.getMessage());
     }
 
     @ExceptionHandler(value = NullPointerException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Response<String> jsonErrorHandler(HttpServletRequest req, NullPointerException e) throws Exception {
+    public Response<String> jsonErrorHandler(HttpServletRequest req, NullPointerException e)  {
         return Response.fail("npe"+e.getStackTrace()[0]);
     }
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Response<String> jsonErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+    public Response<String> jsonErrorHandler(HttpServletRequest req, Exception e) {
         return Response.fail(e.getMessage());
     }
 

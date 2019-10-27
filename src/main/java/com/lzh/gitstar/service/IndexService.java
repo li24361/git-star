@@ -1,11 +1,7 @@
 package com.lzh.gitstar.service;
 
-import com.lzh.gitstar.domain.dto.Index;
 import com.lzh.gitstar.domain.entity.UserIndex;
 import com.lzh.gitstar.repo.UserIndexRepository;
-import me.zhyd.oauth.model.AuthUser;
-import org.apache.shiro.SecurityUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

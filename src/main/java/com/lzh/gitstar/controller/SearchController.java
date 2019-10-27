@@ -1,18 +1,15 @@
 package com.lzh.gitstar.controller;
 
-import cn.hutool.core.date.StopWatch;
+import cn.hutool.json.JSONException;
 import com.lzh.gitstar.domain.dto.Index;
-import com.lzh.gitstar.domain.entity.UserIndex;
+import com.lzh.gitstar.domain.dto.SearchQuery;
 import com.lzh.gitstar.domain.response.Response;
 import com.lzh.gitstar.service.GithubSearchService;
 import com.lzh.gitstar.service.IndexService;
+import com.lzh.gitstar.service.UserLoginService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -20,17 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController {
 
     @Autowired
-    private GithubSearchService githublSearchService;
+    private GithubSearchService githubSearchService;
 
     @Autowired
     private IndexService indexService;
 
+    @Autowired
+    private UserLoginService userLoginService;
 
-    @RequestMapping("/{login}")
+
+    @RequestMapping
     @ResponseBody
-    @RequiresAuthentication
-    public Response searchByLogin(@PathVariable String login) {
-        Index index = githublSearchService.handleUserIndex(login);
+    public Response searchByLogin(@RequestBody SearchQuery searchQuery) {
+        searchQuery.check();
+        userLoginService.fillInUserToken(searchQuery);
+        Index index = githubSearchService.handleUserIndex(searchQuery);
         return Response.ok(index);
     }
 

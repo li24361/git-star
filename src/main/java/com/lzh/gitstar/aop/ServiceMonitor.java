@@ -1,6 +1,7 @@
 package com.lzh.gitstar.aop;
 
 import cn.hutool.core.date.StopWatch;
+import cn.hutool.json.JSONException;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -26,7 +27,8 @@ public class ServiceMonitor {
         try {
             result = pjp.proceed();
         } catch (Throwable e) {
-            log.error(fullMethodName + "执行出错,详情:", e);
+            log.error("error:",e);
+            throw new JSONException(e.getMessage());
         }
         stopWatch.stop();
         log.info(fullMethodName + "执行耗时:" +  stopWatch.getTotalTimeSeconds() + " 秒!");

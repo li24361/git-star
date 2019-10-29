@@ -39,7 +39,7 @@ public class RestAuthController {
 
         JSONObject res = new JSONObject();
         res.put("username", authUser.getUsername());
-        response.sendRedirect("http://localhost:8010/user?result="+res.toJSONString());
+        response.sendRedirect("http://gitstar.txtxtx.com.cn/user?result="+res.toJSONString());
     }
 
 }

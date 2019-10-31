@@ -3,7 +3,7 @@ server:
 
 github:
   endpoint: https://api.github.com/graphql
-  token: **
+
 
 justauth:
   enabled: true
@@ -14,3 +14,16 @@ justauth:
       redirect-uri: http://oauth.xkcoding.com/demo/oauth/github/callback
   cache:
     type: default
+
+
+spring:
+    datasource:
+        username: root
+        password: anywhere
+        url: jdbc:mysql://localhost:3306/gitstar?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    jackson:
+        time-zone: GMT+8
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true

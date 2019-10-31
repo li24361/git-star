@@ -71,7 +71,7 @@ public class GithubSearchService {
         UserIndex index = new UserIndex();
         index.setFollower(jsonRootBean.getData().getUser().getFollowers().getTotalCount());
         index.setAvatarUrl(jsonRootBean.getData().getUser().getAvatarUrl());
-        if (jsonRootBean.getData().getUser().getRepositoriesContributedTo().getTotalCount() > 0) {
+        if (jsonRootBean.getData().getUser().getRepositories().getTotalCount() > 0) {
             index.setPrimaryLanguage(Optional.ofNullable(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getPrimaryLanguage()).map(l -> l.getName()).orElse("Markdown"));
             index.setTopRepository(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getNameWithOwner());
             index.setTopStar(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getStargazers().getTotalCount());
@@ -185,7 +185,7 @@ public class GithubSearchService {
 
         }
         BigDecimal hundred = BigDecimal.valueOf(100L);
-        if (percent.compareTo(hundred) >= 0) {
+        if (percent.compareTo(BigDecimal.ONE) >= 0) {
             return hundred;
         }
         return percent.multiply(hundred);

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * @since : 2019/10/15, 星期二
  **/
 @Data
-public class Index {
+public class IndexDto {
 
     private String login;
 

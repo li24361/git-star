@@ -1,9 +1,8 @@
 package com.lzh.gitstar.service;
 
 import cn.hutool.json.JSONException;
-import cn.hutool.json.JSONUtil;
 import com.github.benmanes.caffeine.cache.Cache;
-import com.lzh.gitstar.domain.dto.SearchQuery;
+import com.lzh.gitstar.domain.dto.SearchQueryDto;
 import com.lzh.gitstar.domain.entity.UserInfo;
 import com.lzh.gitstar.repo.UserRepository;
 import com.xkcoding.justauth.AuthRequestFactory;
@@ -18,7 +17,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 
 /**
@@ -55,7 +53,7 @@ public class UserLoginService {
         return authRequest.authorize(AuthStateUtils.createState()) + "&scope=user:email%20read:org" ;
     }
 
-    public void fillInUserToken(SearchQuery searchQuery) {
+    public void fillInUserToken(SearchQueryDto searchQuery) {
         String cacheUserToken = getCacheUserToken(searchQuery.getUserName());
         searchQuery.setToken(cacheUserToken);
         log.info("searchQuery:{}", searchQuery);

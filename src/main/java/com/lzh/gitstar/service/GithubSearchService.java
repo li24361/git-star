@@ -9,8 +9,8 @@ import cn.hutool.json.JSONException;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.lzh.gitstar.common.FormulaConst;
-import com.lzh.gitstar.domain.dto.Index;
-import com.lzh.gitstar.domain.dto.SearchQuery;
+import com.lzh.gitstar.domain.dto.IndexDto;
+import com.lzh.gitstar.domain.dto.SearchQueryDto;
 import com.lzh.gitstar.domain.entity.UserIndex;
 import com.lzh.gitstar.domain.graphql.ContributionsCollection;
 import com.lzh.gitstar.domain.graphql.JsonRootBean;
@@ -22,10 +22,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,7 +78,7 @@ public class GithubSearchService {
         Repositories repositories = user.getRepositories();
         Repositories repositoriesContributedTo = user.getRepositoriesContributedTo();
         Repositories topRepositories = user.getTopRepositories();
-        if ((repositories.getTotalCount() > 0 || repositoriesContributedTo.getTotalCount()>0) && !CollectionUtils.isEmpty(topRepositories.getNodes())) {
+        if ((repositories.getTotalCount() > 0 || repositoriesContributedTo.getTotalCount()>0) && Objects.nonNull(topRepositories.getNodes().get(0))) {
             index.setPrimaryLanguage(Optional.ofNullable(topRepositories.getNodes().get(0).getPrimaryLanguage()).map(l -> l.getName()).orElse("Markdown"));
             index.setTopRepository(topRepositories.getNodes().get(0).getNameWithOwner());
             index.setTopStar(topRepositories.getNodes().get(0).getStargazers().getTotalCount());
@@ -112,7 +112,7 @@ public class GithubSearchService {
         return index;
     }
 
-    private JsonRootBean searchByGithub(SearchQuery searchQuery) {
+    private JsonRootBean searchByGithub(SearchQueryDto searchQuery) {
         String result = search(searchQuery.getLogin(), searchQuery.getToken());
         JSONObject jsonObject = JSONUtil.parseObj(result);
         if (jsonObject.getJSONArray("errors") != null) {
@@ -133,8 +133,8 @@ public class GithubSearchService {
      * @param userIndex
      * @return
      */
-    private Index calculateUserIndex(UserIndex userIndex) {
-        Index index = new Index();
+    private IndexDto calculateUserIndex(UserIndex userIndex) {
+        IndexDto index = new IndexDto();
         index.setLogin(userIndex.getLogin());
         index.setAvatarUrl(userIndex.getAvatarUrl());
         index.setOwnStars(userIndex.getOwnStar());
@@ -150,11 +150,11 @@ public class GithubSearchService {
         return index;
     }
 
-    public Index handleUserIndex(SearchQuery searchQuery) {
+    public IndexDto handleUserIndex(SearchQueryDto searchQuery) {
         JsonRootBean jsonRootBean = searchByGithub(searchQuery);
         UserIndex userIndex = searchUserInfo(jsonRootBean);
         userIndex.setLogin(searchQuery.getLogin());
-        Index index = calculateUserIndex(userIndex);
+        IndexDto index = calculateUserIndex(userIndex);
         index.setCreatedAt(DateUtil.format(jsonRootBean.getData().getUser().getCreatedAt(), "yyyy-MM-dd"));
         Executors.newSingleThreadExecutor().submit(() -> {
             userIndex.setAllScore(index.getScore());

@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
  * @since : 2019/10/27, 星期日
  **/
 @Data
-public class SearchQuery {
+public class SearchQueryDto {
 
     private String login;
 

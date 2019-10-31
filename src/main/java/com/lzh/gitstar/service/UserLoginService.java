@@ -57,8 +57,8 @@ public class UserLoginService {
 
     public void fillInUserToken(SearchQuery searchQuery) {
         String cacheUserToken = getCacheUserToken(searchQuery.getUserName());
-        log.info("searchQuery:{}", searchQuery);
         searchQuery.setToken(cacheUserToken);
+        log.info("searchQuery:{}", searchQuery);
     }
 
     public AuthUser githubCallback(AuthCallback callback){

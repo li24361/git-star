@@ -26,20 +26,6 @@
         avatarUrl
       }
     }
-     pinnedItems(first:10) {
-      nodes {
-        ... on Repository {
-          nameWithOwner
-          forkCount
-          primaryLanguage {
-            name
-          }
-          stargazers {
-            totalCount
-          }
-        }
-      }
-    }
     repositories(first: 100, orderBy: {field: STARGAZERS, direction: DESC}) {
       totalCount
       nodes {

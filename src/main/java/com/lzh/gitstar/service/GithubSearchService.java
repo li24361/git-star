@@ -14,12 +14,15 @@ import com.lzh.gitstar.domain.dto.SearchQuery;
 import com.lzh.gitstar.domain.entity.UserIndex;
 import com.lzh.gitstar.domain.graphql.ContributionsCollection;
 import com.lzh.gitstar.domain.graphql.JsonRootBean;
+import com.lzh.gitstar.domain.graphql.Repositories;
+import com.lzh.gitstar.domain.graphql.User;
 import com.lzh.gitstar.index.HIndexCalculator;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -69,12 +72,16 @@ public class GithubSearchService {
 
     private UserIndex searchUserInfo(JsonRootBean jsonRootBean) {
         UserIndex index = new UserIndex();
-        index.setFollower(jsonRootBean.getData().getUser().getFollowers().getTotalCount());
-        index.setAvatarUrl(jsonRootBean.getData().getUser().getAvatarUrl());
-        if (jsonRootBean.getData().getUser().getRepositories().getTotalCount() > 0) {
-            index.setPrimaryLanguage(Optional.ofNullable(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getPrimaryLanguage()).map(l -> l.getName()).orElse("Markdown"));
-            index.setTopRepository(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getNameWithOwner());
-            index.setTopStar(jsonRootBean.getData().getUser().getTopRepositories().getNodes().get(0).getStargazers().getTotalCount());
+        User user = jsonRootBean.getData().getUser();
+        index.setFollower(user.getFollowers().getTotalCount());
+        index.setAvatarUrl(user.getAvatarUrl());
+        Repositories repositories = user.getRepositories();
+        Repositories repositoriesContributedTo = user.getRepositoriesContributedTo();
+        Repositories topRepositories = user.getTopRepositories();
+        if ((repositories.getTotalCount() > 0 || repositoriesContributedTo.getTotalCount()>0) && !CollectionUtils.isEmpty(topRepositories.getNodes())) {
+            index.setPrimaryLanguage(Optional.ofNullable(topRepositories.getNodes().get(0).getPrimaryLanguage()).map(l -> l.getName()).orElse("Markdown"));
+            index.setTopRepository(topRepositories.getNodes().get(0).getNameWithOwner());
+            index.setTopStar(topRepositories.getNodes().get(0).getStargazers().getTotalCount());
         } else {
             index.setPrimaryLanguage("none");
             index.setTopRepository("none");
@@ -83,17 +90,17 @@ public class GithubSearchService {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         executorService.submit(() -> {
-            index.setRepositoryHIndex(hIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositories()));
+            index.setRepositoryHIndex(hIndexCalculator.calculate(repositories));
         });
         executorService.submit(() -> {
-            index.setContributeRepositoryHIndex(hIndexCalculator.calculate(jsonRootBean.getData().getUser().getRepositoriesContributedTo()));
+            index.setContributeRepositoryHIndex(hIndexCalculator.calculate(repositoriesContributedTo));
         });
 
-        long contributeStar = jsonRootBean.getData().getUser().getRepositoriesContributedTo().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
-        long ownStar = jsonRootBean.getData().getUser().getRepositories().getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
+        long contributeStar = repositoriesContributedTo.getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
+        long ownStar = repositories.getNodes().stream().mapToInt(nodes -> nodes.getStargazers().getTotalCount()).sum();
         index.setOwnStar((int) ownStar);
         index.setContributeStar((int) contributeStar);
-        Optional<ContributionsCollection> collectionOptional = Optional.ofNullable(jsonRootBean.getData().getUser().getContributionsCollection());
+        Optional<ContributionsCollection> collectionOptional = Optional.ofNullable(user.getContributionsCollection());
         index.setContributes(collectionOptional.map(c -> c.getAllContributions()).orElse(0));
         index.setContributeYears(collectionOptional.map(c -> c.getContributionYears()).map(y -> y.size()).orElse(0));
         try {

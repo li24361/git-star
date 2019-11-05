@@ -1,7 +1,6 @@
 package com.lzh.gitstar.service;
 
 import cn.hutool.json.JSONException;
-import com.github.benmanes.caffeine.cache.Cache;
 import com.lzh.gitstar.domain.dto.SearchQueryDto;
 import com.lzh.gitstar.domain.entity.UserInfo;
 import com.lzh.gitstar.repo.UserRepository;
@@ -34,23 +33,17 @@ public class UserLoginService {
     @Autowired
     private UserRepository userRepository;
 
-
-    @Autowired
-    private Cache cache;
-
     private static final String github = "github";
 
     private static AuthRequest authRequest;
 
-
-
     @PostConstruct
     public void init() {
-        authRequest  = factory.get(github);
+        authRequest = factory.get(github);
     }
 
-    public String githubLogin(){
-        return authRequest.authorize(AuthStateUtils.createState()) + "&scope=user:email%20read:org" ;
+    public String githubLogin() {
+        return authRequest.authorize(AuthStateUtils.createState()) + "&scope=user:email%20read:org";
     }
 
     public void fillInUserToken(SearchQueryDto searchQuery) {
@@ -59,7 +52,7 @@ public class UserLoginService {
         log.info("searchQuery:{}", searchQuery);
     }
 
-    public AuthUser githubCallback(AuthCallback callback){
+    public AuthUser githubCallback(AuthCallback callback) {
         AuthRequest authRequest = factory.get(github);
         AuthResponse response = authRequest.login(callback);
         AuthUser authUser = (AuthUser)response.getData();
@@ -75,13 +68,11 @@ public class UserLoginService {
             user.setLocation(authUser.getLocation());
             userRepository.save(user);
         });
-        cache.put(authUser.getUsername(),authUser.getToken().getAccessToken());
     }
 
-
-    @Cacheable("login")
+    @Cacheable(value = "login",key = "login")
     public String getCacheUserToken(String login) {
-        return userRepository.findByLogin(login).orElseThrow(()->{
+        return userRepository.findByLogin(login).orElseThrow(() -> {
             return new JSONException("user not login");
         }).getToken();
     }

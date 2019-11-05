@@ -1,12 +1,12 @@
 package com.lzh.gitstar.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.benmanes.caffeine.cache.Cache;
 import com.lzh.gitstar.service.UserLoginService;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,12 +25,14 @@ public class RestAuthController {
     @Autowired
     private UserLoginService userLoginService;
 
+    @Value("${vue.endpoint}")
+    private String vueEndpoint;
+
     @GetMapping("/login")
-    public String login( HttpServletResponse response) throws IOException {
-//        response.sendRedirect(userLoginService.githubLogin());
+    public String login(HttpServletResponse response) throws IOException {
+        //        response.sendRedirect(userLoginService.githubLogin());
         return userLoginService.githubLogin();
     }
-
 
     @RequestMapping("/oauth/github/callback")
     public void login(AuthCallback callback, HttpServletResponse response) throws IOException {
@@ -39,7 +41,7 @@ public class RestAuthController {
 
         JSONObject res = new JSONObject();
         res.put("username", authUser.getUsername());
-        response.sendRedirect("http://gitstar.txtxtx.com.cn/user?result="+res.toJSONString());
+        response.sendRedirect(vueEndpoint+"/user?result=" + res.toJSONString());
     }
 
 }

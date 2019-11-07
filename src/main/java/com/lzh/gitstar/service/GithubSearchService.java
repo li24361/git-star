@@ -62,8 +62,13 @@ public class GithubSearchService {
         IndexDto index = calculateUserIndex(userIndex);
         index.setCreatedAt(DateUtil.format(jsonRootBean.getData().getUser().getCreatedAt(), "yyyy-MM-dd"));
         Executors.newSingleThreadExecutor().submit(() -> {
-            IndexService.saveIndex(userIndex);
-            rankService.putUser(userIndex);
+            try {
+                userIndex.setAllScore(index.getScore());
+                IndexService.saveIndex(userIndex);
+                rankService.putUser(userIndex);
+            } catch (Exception e) {
+                log.error("save user error!", e);
+            }
         });
         return index;
     }

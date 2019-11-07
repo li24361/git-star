@@ -4,6 +4,7 @@ import com.lzh.gitstar.domain.dto.UserRank;
 import com.lzh.gitstar.domain.dto.UserScoreDto;
 import com.lzh.gitstar.domain.entity.UserIndex;
 import com.lzh.gitstar.repo.UserIndexRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  * @Author: lizhihao
  * @Date: 2019/10/30
  */
+@Slf4j
 @Service
 public class RankService {
 

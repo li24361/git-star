@@ -41,7 +41,7 @@ public class RestAuthController {
 
         JSONObject res = new JSONObject();
         res.put("username", authUser.getUsername());
-        response.sendRedirect(vueEndpoint+"/user?result=" + res.toJSONString());
+        response.sendRedirect(vueEndpoint+"/redirect?result=" + res.toJSONString());
     }
 
 }

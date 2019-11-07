@@ -3,6 +3,7 @@ package com.lzh.gitstar.domain.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -12,7 +13,7 @@ import java.util.Date;
 @Entity
 @Table(name = "user_index")
 @Data
-public class UserIndex {
+public class UserIndex implements Serializable {
 
     @Id
     @Column(columnDefinition = "varchar(100) COMMENT '用户名'")

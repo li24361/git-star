@@ -34,14 +34,14 @@ public class SearchController {
     public Response searchByLogin(@RequestBody SearchQueryDto searchQuery) {
         searchQuery.check();
         userLoginService.fillInUserToken(searchQuery);
-        IndexDto index = githubSearchService.handleUserIndex(searchQuery);
+        IndexDto index = githubSearchService.searchUserIndex(searchQuery);
         return Response.ok(index);
     }
 
     @RequestMapping("/list")
     @ResponseBody
     public Response list() {
-        return Response.ok(rankService.list());
+        return Response.ok(rankService.listByCache());
     }
 
 

@@ -1,17 +1,20 @@
 package com.lzh.gitstar.service;
 
+import com.lzh.gitstar.domain.dto.UserRank;
 import com.lzh.gitstar.domain.dto.UserScoreDto;
 import com.lzh.gitstar.domain.entity.UserIndex;
 import com.lzh.gitstar.repo.UserIndexRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -33,25 +36,38 @@ public class RankService {
 
     @PostConstruct
     public void init() {
-        //todo 数量太多要完蛋
-        ArrayList<UserIndex> all = (ArrayList<UserIndex>)userIndexRepository.findAll();
+        clearUser();
+        List<UserIndex> all = userIndexRepository.findAll(PageRequest.of(0, 200)).getContent();
         if (!CollectionUtils.isEmpty(all)) {
             all.stream()
-                .map(u -> UserScoreDto.builder().userName(u.getLogin()).score(Double.valueOf(u.getAllScore()*-1)).build())
-                .forEach(userScoreDto -> {
-                    putUser(userScoreDto);
+                .forEach(userIndex -> {
+                    putUser(userIndex);
                 });
         }
     }
 
-    public void putUser(UserScoreDto userScore) {
-        redisTemplate.opsForZSet().add(KEY, userScore.getUserName(), userScore.getScore());
+    public void putUser(UserIndex userIndex) {
+        redisTemplate.opsForZSet().add(KEY, userIndex.getLogin(), userIndex.getAllScore());
+        redisTemplate.opsForValue().set(userIndex.getLogin(), userIndex);
     }
 
-    public List<UserScoreDto> list() {
-        Set<DefaultTypedTuple> range = redisTemplate.opsForZSet().rangeWithScores(KEY, 0, 100);
+    public void clearUser() {
+        redisTemplate.delete(KEY);
+    }
+
+    public List<UserRank> listByCache() {
+        Set<DefaultTypedTuple> range = redisTemplate.opsForZSet().reverseRangeWithScores(KEY, 0, 199);
         AtomicLong i = new AtomicLong(1);
-        return range.stream().map(t -> UserScoreDto.builder().rank(i.getAndIncrement()).userName((String)t.getValue()).score(t.getScore()).build()).collect(Collectors.toList());
+        return range.stream()
+            .map(t -> redisTemplate.opsForValue().get(t.getValue()))
+            .filter(Objects::nonNull)
+            .map(u -> {
+                UserRank userRank = new UserRank();
+                BeanUtils.copyProperties(u, userRank);
+                userRank.setRank(i.getAndIncrement());
+                return userRank;
+            })
+            .collect(Collectors.toList());
     }
 
     public UserScoreDto getUserRank(String userName) {

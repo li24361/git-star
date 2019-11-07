@@ -70,7 +70,7 @@ public class UserLoginService {
         });
     }
 
-    @Cacheable(value = "login",key = "login")
+    @Cacheable(value = "login")
     public String getCacheUserToken(String login) {
         return userRepository.findByLogin(login).orElseThrow(() -> {
             return new JSONException("user not login");

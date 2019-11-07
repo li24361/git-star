@@ -50,8 +50,23 @@ public class GithubSearchService {
     private IndexService IndexService;
 
     @Autowired
-    HIndexCalculator hIndexCalculator;
+    private HIndexCalculator hIndexCalculator;
 
+    @Autowired
+    private RankService rankService;
+
+    public IndexDto searchUserIndex(SearchQueryDto searchQuery) {
+        JsonRootBean jsonRootBean = searchByGithub(searchQuery);
+        UserIndex userIndex = searchUserInfo(jsonRootBean);
+        userIndex.setLogin(searchQuery.getLogin());
+        IndexDto index = calculateUserIndex(userIndex);
+        index.setCreatedAt(DateUtil.format(jsonRootBean.getData().getUser().getCreatedAt(), "yyyy-MM-dd"));
+        Executors.newSingleThreadExecutor().submit(() -> {
+            IndexService.saveIndex(userIndex);
+            rankService.putUser(userIndex);
+        });
+        return index;
+    }
 
     private String search(String login, String token) {
         if (StringUtils.isEmpty(token)) {
@@ -147,19 +162,6 @@ public class GithubSearchService {
         index.setRepositoryHIndexScore(getScore(userIndex.getRepositoryHIndex()));
         index.setContributeRepositoryHIndexScore(getScore(userIndex.getContributeRepositoryHIndex()));
         index.setContributesScore(getScore(userIndex.getContributes(), FormulaConst.maxComtribute));
-        return index;
-    }
-
-    public IndexDto handleUserIndex(SearchQueryDto searchQuery) {
-        JsonRootBean jsonRootBean = searchByGithub(searchQuery);
-        UserIndex userIndex = searchUserInfo(jsonRootBean);
-        userIndex.setLogin(searchQuery.getLogin());
-        IndexDto index = calculateUserIndex(userIndex);
-        index.setCreatedAt(DateUtil.format(jsonRootBean.getData().getUser().getCreatedAt(), "yyyy-MM-dd"));
-        Executors.newSingleThreadExecutor().submit(() -> {
-            userIndex.setAllScore(index.getScore());
-            IndexService.saveIndex(userIndex);
-        });
         return index;
     }
 

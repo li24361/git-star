@@ -1,15 +1,12 @@
 package com.lzh.gitstar.repo;
 
 import com.lzh.gitstar.domain.entity.UserIndex;
-import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author : lizhihao
  * @since : 2019/10/19, 星期六
  **/
-public interface UserIndexRepository extends CrudRepository<UserIndex, Long> {
+public interface UserIndexRepository extends JpaRepository<UserIndex, Long> {
 
-//    public List<UserIndex> findAllOrderByAllScoreDesc();
 }
